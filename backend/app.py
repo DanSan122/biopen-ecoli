@@ -8,12 +8,19 @@ import io
 from features import parsear_fasta, parsear_csv, limpiar_y_validar_secuencia, extraer_todas_las_caracteristicas
 from model_manager import ModelManager
 
-# Definir rutas base
+# Definir rutas base - Compatible con local y Render
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+
+# Crear directorios si no existen
+os.makedirs(os.path.join(BASE_DIR, "backend", "data"), exist_ok=True)
+
 HISTORY_PATH = os.path.join(BASE_DIR, "backend", "data", "history.json")
 
+# Configurar Flask con archivos estáticos
 app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
+# Aumentar timeout para predicciones complejas
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
 
 # Inicializar gestor de modelos al arrancar el servidor (con recarga dinámica de métricas)
 model_manager = ModelManager()
