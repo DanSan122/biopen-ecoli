@@ -36,11 +36,9 @@ wheels/
 .env.local
 .env.*.local
 
-# Datos y modelos temporales
-*.pkl
+# Datos y modelos temporales (excepto los modelos entrenados en backend/models/)
 *.pickle
 history.json
-metrics.json
 
 # Logs
 *.log
@@ -57,3 +55,7 @@ npm-debug.log
 
 # Vercel
 .vercel/
+
+# ✓ Permitir archivos .pkl y .json en backend/models/ (modelos entrenados)
+!backend/models/*.pkl
+!backend/models/metrics.json

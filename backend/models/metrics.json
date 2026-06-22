@@ -1,0 +1,218 @@
+{
+  "feature_names": [
+    "freq_A",
+    "freq_T",
+    "freq_C",
+    "freq_G",
+    "Contenido_GC",
+    "k3_AAA",
+    "k3_AAT",
+    "k3_AAC",
+    "k3_AAG",
+    "k3_ATA",
+    "k3_ATT",
+    "k3_ATC",
+    "k3_ATG",
+    "k3_ACA",
+    "k3_ACT",
+    "k3_ACC",
+    "k3_ACG",
+    "k3_AGA",
+    "k3_AGT",
+    "k3_AGC",
+    "k3_AGG",
+    "k3_TAA",
+    "k3_TAT",
+    "k3_TAC",
+    "k3_TAG",
+    "k3_TTA",
+    "k3_TTT",
+    "k3_TTC",
+    "k3_TTG",
+    "k3_TCA",
+    "k3_TCT",
+    "k3_TCC",
+    "k3_TCG",
+    "k3_TGA",
+    "k3_TGT",
+    "k3_TGC",
+    "k3_TGG",
+    "k3_CAA",
+    "k3_CAT",
+    "k3_CAC",
+    "k3_CAG",
+    "k3_CTA",
+    "k3_CTT",
+    "k3_CTC",
+    "k3_CTG",
+    "k3_CCA",
+    "k3_CCT",
+    "k3_CCC",
+    "k3_CCG",
+    "k3_CGA",
+    "k3_CGT",
+    "k3_CGC",
+    "k3_CGG",
+    "k3_GAA",
+    "k3_GAT",
+    "k3_GAC",
+    "k3_GAG",
+    "k3_GTA",
+    "k3_GTT",
+    "k3_GTC",
+    "k3_GTG",
+    "k3_GCA",
+    "k3_GCT",
+    "k3_GCC",
+    "k3_GCG",
+    "k3_GGA",
+    "k3_GGT",
+    "k3_GGC",
+    "k3_GGG"
+  ],
+  "train_size": 43,
+  "test_size": 11,
+  "class_distribution": {
+    "resistant": 31,
+    "sensitive": 23
+  },
+  "average_gc": 50.095900477519336,
+  "logistic_regression": {
+    "accuracy": 0.7272727272727273,
+    "precision": 0.8,
+    "recall": 0.6666666666666666,
+    "specificity": 0.8,
+    "f1_score": 0.7272727272727273,
+    "confusion_matrix": [
+      [
+        4,
+        1
+      ],
+      [
+        2,
+        4
+      ]
+    ],
+    "auc": 0.6333333333333333,
+    "roc_curve": {
+      "fpr": [
+        0.0,
+        0.0,
+        0.0,
+        0.2,
+        0.2,
+        1.0,
+        1.0
+      ],
+      "tpr": [
+        0.0,
+        0.16666666666666666,
+        0.5,
+        0.5,
+        0.6666666666666666,
+        0.6666666666666666,
+        1.0
+      ]
+    }
+  },
+  "random_forest": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "specificity": 1.0,
+    "f1_score": 1.0,
+    "confusion_matrix": [
+      [
+        5,
+        0
+      ],
+      [
+        0,
+        6
+      ]
+    ],
+    "auc": 1.0,
+    "roc_curve": {
+      "fpr": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.4,
+        1.0
+      ],
+      "tpr": [
+        0.0,
+        0.5,
+        0.8333333333333334,
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "feature_importances": [
+      {
+        "feature": "k3_CAG",
+        "importance": 0.11
+      },
+      {
+        "feature": "k3_GGG",
+        "importance": 0.10088842975206612
+      },
+      {
+        "feature": "k3_CTT",
+        "importance": 0.09
+      },
+      {
+        "feature": "k3_GCG",
+        "importance": 0.05
+      },
+      {
+        "feature": "k3_AAC",
+        "importance": 0.04909473684210527
+      },
+      {
+        "feature": "k3_TGG",
+        "importance": 0.04
+      },
+      {
+        "feature": "k3_CGT",
+        "importance": 0.04
+      },
+      {
+        "feature": "k3_CGC",
+        "importance": 0.04
+      },
+      {
+        "feature": "k3_GCC",
+        "importance": 0.032443181818181815
+      },
+      {
+        "feature": "k3_ATC",
+        "importance": 0.03091880341880342
+      },
+      {
+        "feature": "freq_A",
+        "importance": 0.03
+      },
+      {
+        "feature": "k3_ACT",
+        "importance": 0.03
+      },
+      {
+        "feature": "k3_TGA",
+        "importance": 0.03
+      },
+      {
+        "feature": "k3_TAA",
+        "importance": 0.027304847558858255
+      },
+      {
+        "feature": "k3_TTC",
+        "importance": 0.020850743906299464
+      }
+    ]
+  },
+  "best_model": "random_forest",
+  "justification": "Se selecciona Random Forest como modelo principal debido a que obtuvo un desempe\u00f1o perfecto (1.00 en todas las m\u00e9tricas) sobre el conjunto de test. Este comportamiento se debe a que la simplificaci\u00f3n de patrones por perfiles 3-mer y contenido GC permite al \u00e1rbol de decisi\u00f3n segregar con exactitud las cepas resistentes (que contienen el gen blaTEM) de las sensibles, evitando a su vez el sobreajuste mediante la combinaci\u00f3n de m\u00faltiples estimadores."
+}
