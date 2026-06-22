@@ -1,10 +1,11 @@
 import sys
 import os
 
-# Añadir el path del backend
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "backend"))
+# Añadir el path raíz del proyecto
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
 
-from model_manager import ModelManager
+from backend.model_manager import ModelManager
 
 print("Forzando reentrenamiento de modelos...")
 mm = ModelManager()

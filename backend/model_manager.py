@@ -39,14 +39,30 @@ class ModelManager:
         
     def inicializar(self):
         """
-        Carga los modelos entrenados. No reentrenará automáticamente.
+        Carga los modelos si existen. Si falla por incompatibilidad, reentrenará.
         """
-        if os.path.exists(LR_MODEL_PATH) and os.path.exists(RF_MODEL_PATH) and os.path.exists(METRICS_PATH):
-            print("[ModelManager] Cargando modelos existentes desde disco...")
-            self.cargar_modelos()
-            print("[ModelManager] Modelos cargados exitosamente ✓")
-        else:
-            raise FileNotFoundError(f"Modelos no encontrados. Esperaba en: {MODELS_DIR}")
+        try:
+            if os.path.exists(LR_MODEL_PATH) and os.path.exists(RF_MODEL_PATH) and os.path.exists(METRICS_PATH):
+                print("[ModelManager] Cargando modelos existentes desde disco...")
+                try:
+                    self.cargar_modelos()
+                    print("[ModelManager] Modelos cargados exitosamente ✓")
+                    return
+                except Exception as e:
+                    print(f"[ModelManager] Advertencia: No se pudieron cargar modelos: {e}")
+                    print("[ModelManager] Intentando entrenar nuevos modelos...")
+                    self.entrenar_y_guardar()
+                    return
+            
+            # Si no existen los modelos, intenta entrenar
+            if os.path.exists(CSV_PATH):
+                print("[ModelManager] Modelos no encontrados. Entrenando desde CSV...")
+                self.entrenar_y_guardar()
+            else:
+                raise FileNotFoundError(f"No hay modelos guardados ni archivo CSV en {CSV_PATH}")
+        except Exception as e:
+            print(f"[ModelManager] ERROR durante inicialización: {e}")
+            raise
 
     def cargar_modelos(self):
         try:
