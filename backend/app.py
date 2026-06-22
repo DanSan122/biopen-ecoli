@@ -26,8 +26,12 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
 model_manager = ModelManager()
 try:
     model_manager.inicializar()
+    print("✓ Modelos inicializados correctamente")
 except Exception as e:
-    print(f"Error al inicializar los modelos: {e}")
+    print(f"✗ ERROR CRÍTICO al inicializar modelos: {e}")
+    import traceback
+    traceback.print_exc()
+    raise
 
 def guardar_en_historial(registro):
     historial = []

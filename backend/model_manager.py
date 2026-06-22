@@ -9,10 +9,11 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix, roc_curve, roc_auc_score
 
-# Definir rutas base
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODELS_DIR = os.path.join(BASE_DIR, "backend", "models")
-DATA_DIR = os.path.join(BASE_DIR, "backend", "data")
+# Definir rutas base - Funciona en local y en Render
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))  # /backend
+BASE_DIR = os.path.dirname(CURRENT_DIR)  # Sube a raíz del proyecto
+MODELS_DIR = os.path.join(CURRENT_DIR, "models")  # /backend/models
+DATA_DIR = os.path.join(CURRENT_DIR, "data")  # /backend/data
 CSV_PATH = os.path.join(BASE_DIR, "Dataset_Features_Ecoli.csv")
 
 # Asegurar que existan los directorios
@@ -22,6 +23,12 @@ os.makedirs(DATA_DIR, exist_ok=True)
 LR_MODEL_PATH = os.path.join(MODELS_DIR, "logistic_regression.pkl")
 RF_MODEL_PATH = os.path.join(MODELS_DIR, "random_forest.pkl")
 METRICS_PATH = os.path.join(MODELS_DIR, "metrics.json")
+
+print(f"[ModelManager] BASE_DIR: {BASE_DIR}")
+print(f"[ModelManager] MODELS_DIR: {MODELS_DIR}")
+print(f"[ModelManager] LR_MODEL_PATH exists: {os.path.exists(LR_MODEL_PATH)}")
+print(f"[ModelManager] RF_MODEL_PATH exists: {os.path.exists(RF_MODEL_PATH)}")
+print(f"[ModelManager] METRICS_PATH exists: {os.path.exists(METRICS_PATH)}")
 
 class ModelManager:
     def __init__(self):
@@ -34,23 +41,37 @@ class ModelManager:
         """
         Carga los modelos si existen, o los entrena a partir del CSV.
         """
-        if os.path.exists(LR_MODEL_PATH) and os.path.exists(RF_MODEL_PATH) and os.path.exists(METRICS_PATH):
-            print("Cargando modelos existentes desde disco...")
-            self.cargar_modelos()
-        else:
-            print("Modelos no encontrados o incompletos. Entrenando nuevos modelos...")
-            self.entrenar_y_guardar()
+        try:
+            if os.path.exists(LR_MODEL_PATH) and os.path.exists(RF_MODEL_PATH) and os.path.exists(METRICS_PATH):
+                print("[ModelManager] Cargando modelos existentes desde disco...")
+                self.cargar_modelos()
+                print("[ModelManager] Modelos cargados exitosamente ✓")
+            else:
+                print("[ModelManager] Modelos no encontrados. Buscando Dataset_Features_Ecoli.csv para entrenar...")
+                if os.path.exists(CSV_PATH):
+                    print("[ModelManager] Entrenando nuevos modelos...")
+                    self.entrenar_y_guardar()
+                else:
+                    raise FileNotFoundError(f"No hay modelos guardados ni archivo CSV para entrenar en {CSV_PATH}")
+        except Exception as e:
+            print(f"[ModelManager] ERROR durante inicialización: {e}")
+            raise
 
     def cargar_modelos(self):
-        with open(LR_MODEL_PATH, "rb") as f:
-            self.modelo_rl = pickle.load(f)
-        with open(RF_MODEL_PATH, "rb") as f:
-            self.modelo_rf = pickle.load(f)
-            
-        with open(METRICS_PATH, "r", encoding="utf-8") as f:
-            self.metrics = json.load(f)
-            
-        self.feature_names = self.metrics.get("feature_names", [])
+        try:
+            with open(LR_MODEL_PATH, "rb") as f:
+                self.modelo_rl = pickle.load(f)
+            with open(RF_MODEL_PATH, "rb") as f:
+                self.modelo_rf = pickle.load(f)
+                
+            with open(METRICS_PATH, "r", encoding="utf-8") as f:
+                self.metrics = json.load(f)
+                
+            self.feature_names = self.metrics.get("feature_names", [])
+            print(f"[ModelManager] {len(self.feature_names)} características cargadas")
+        except Exception as e:
+            print(f"[ModelManager] Error al cargar modelos: {e}")
+            raise
 
     def entrenar_y_guardar(self):
         if not os.path.exists(CSV_PATH):
