@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioPen E.coli - Detección de Resistencia a la Penicilina</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <i class="fa-solid fa-dna logo-icon"></i>
+                <div class="logo-text">
+                    <span class="logo-title">BioPen</span>
+                    <span class="logo-subtitle">E. coli Predictor</span>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a href="#dashboard" class="nav-item active" data-target="dashboard-section">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="#analizar" class="nav-item" data-target="analizar-section">
+                    <i class="fa-solid fa-microscope"></i> Analizar Muestra
+                </a>
+                <a href="#modelos" class="nav-item" data-target="modelos-section">
+                    <i class="fa-solid fa-code-compare"></i> Comparar Modelos
+                </a>
+                <a href="#historial" class="nav-item" data-target="historial-section">
+                    <i class="fa-solid fa-history"></i> Historial
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-lbl">Modelos listos</span>
+                </div>
+                <div class="version">v1.2.0</div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-bar">
+                <div class="page-title-area">
+                    <h1 id="current-page-title">Dashboard</h1>
+                </div>
+                <div class="user-profile">
+                    <span class="hospital-name"><i class="fa-solid fa-hospital-user"></i> Lab Central Bioinfo</span>
+                    <div class="divider"></div>
+                    <span id="live-time"></span>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section active">
+                <div class="welcome-card">
+                    <div class="welcome-text">
+                        <h2>Bienvenido a BioPen E. coli</h2>
+                        <p>Plataforma analítica avanzada para predecir la resistencia a antibióticos betalactámicos (Penicilina) mediante aprendizaje automático a partir de simplificación de secuencias de ADN.</p>
+                    </div>
+                    <div class="welcome-visual">
+                        <i class="fa-solid fa-network-wired"></i>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon r-color"><i class="fa-solid fa-database"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-train-size">54</span>
+                            <span class="stat-label">Cepas de Entrenamiento</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon g-color"><i class="fa-solid fa-award"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-best-model">RF (100%)</span>
+                            <span class="stat-label">Mejor Modelo (Accuracy)</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon b-color"><i class="fa-solid fa-percent"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-avg-gc">49.6 %</span>
+                            <span class="stat-label">Contenido GC Promedio</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon y-color"><i class="fa-solid fa-flask"></i></div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-total-analyzed">0</span>
+                            <span class="stat-label">Análisis Realizados</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid-two">
+                    <div class="chart-card">
+                        <h3>Distribución de Clases en la Base de Datos</h3>
+                        <p class="chart-subtitle">Proporción de muestras resistentes vs sensibles del pangenoma de entrenamiento</p>
+                        <div class="chart-container">
+                            <canvas id="classDistChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Estabilidad del Modelo Random Forest</h3>
+                        <p class="chart-subtitle">Importancia relativa de las 7 variables genómicas clave más influyentes</p>
+                        <div class="chart-container">
+                            <canvas id="topFeaturesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analizar Muestra Section -->
+            <section id="analizar-section" class="content-section">
+                <div class="dashboard-card form-card">
+                    <h2><i class="fa-solid fa-pen-fancy"></i> Cargar Secuencia de ADN</h2>
+                    <p class="card-desc">Sube un archivo genómico FASTA, un archivo CSV con columna de secuencias, o pega la secuencia de nucleótidos (A, T, C, G) para extraer características y diagnosticar resistencia.</p>
+                    
+                    <div class="input-toggle">
+                        <button class="toggle-btn active" id="btn-paste"><i class="fa-solid fa-keyboard"></i> Pegar Secuencia</button>
+                        <button class="toggle-btn" id="btn-file"><i class="fa-solid fa-file-arrow-up"></i> Cargar Archivo (FASTA / CSV)</button>
+                    </div>
+
+                    <div id="paste-area" class="input-container active">
+                        <label for="dna-input">Pegar secuencia en formato FASTA o texto plano:</label>
+                        <textarea id="dna-input" placeholder="Ejemplo: &#10;>ID_Muestra&#10;ATGAGTATTCAACATTTCCGTGTCGCCCTTATTCCCTTTTTTGCGG..."></textarea>
+                    </div>
+
+                    <div id="file-area" class="input-container">
+                        <div class="drop-zone" id="drop-zone">
+                            <i class="fa-solid fa-cloud-arrow-up drop-icon"></i>
+                            <p class="drop-text">Arrastra tu archivo .fasta o .csv aquí o haz clic para buscar</p>
+                            <input type="file" id="file-input" accept=".fasta,.fa,.txt,.csv" style="display:none;">
+                            <span id="file-name" class="file-name-display"></span>
+                        </div>
+                    </div>
+
+                    <div id="validation-error" class="alert-box error-alert" style="display:none;">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                        <span id="error-message">Error de validación</span>
+                    </div>
+
+                    <div class="action-bar">
+                        <button id="btn-clear" class="btn btn-secondary"><i class="fa-solid fa-eraser"></i> Limpiar</button>
+                        <button id="btn-analyze" class="btn btn-primary"><i class="fa-solid fa-gears"></i> Iniciar Predicción</button>
+                    </div>
+                </div>
+
+                <!-- Loader -->
+                <div id="prediction-loader" class="loader-overlay" style="display:none;">
+                    <div class="spinner"></div>
+                    <p>Procesando datos y extrayendo k-mers de las secuencias...</p>
+                </div>
+
+                <!-- Resultados Container -->
+                <div id="resultado-container" class="results-container" style="display:none;">
+                    <div class="results-title-bar">
+                        <h2><i class="fa-solid fa-clipboard-check"></i> Reporte del Diagnóstico Realizado</h2>
+                        <span class="badge" id="res-badge">Resistente</span>
+                    </div>
+
+                    <!-- Single Result View -->
+                    <div id="single-result-view" class="results-grid">
+                        <div class="result-details-card">
+                            <h3>Información del Análisis</h3>
+                            <table class="clinical-table">
+                                <tr>
+                                    <td><strong>ID de Muestra:</strong></td>
+                                    <td id="res-id">muestra_01</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Longitud de Secuencia:</strong></td>
+                                    <td id="res-length">0 pb</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Contenido GC:</strong></td>
+                                    <td id="res-gc">0%</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fecha y Hora:</strong></td>
+                                    <td id="res-date">2026-06-21 12:00:00</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Modelo Recomendado:</strong></td>
+                                    <td>Random Forest (Principal)</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="result-probability-card">
+                            <h3>Confianza del Diagnóstico</h3>
+                            <div class="gauge-wrapper">
+                                <div class="gauge-body">
+                                    <div class="gauge-fill" id="gauge-fill-id"></div>
+                                    <div class="gauge-cover" id="gauge-text-id">0%</div>
+                                </div>
+                            </div>
+                            <p class="gauge-desc">Representa el porcentaje de confianza estadística del modelo en el diagnóstico asignado (sea Resistente o No Resistente).</p>
+                        </div>
+                    </div>
+
+                    <!-- Batch Result View -->
+                    <div id="batch-result-view" style="display:none; margin-bottom: 24px;">
+                        <h3 style="font-size: 14.5px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px;"><i class="fa-solid fa-list-check"></i> Cepas Analizadas en Lote</h3>
+                        <p class="card-desc" id="batch-summary-text">Se procesaron 0 muestras del archivo CSV con éxito.</p>
+                        <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                            <table class="clinical-table" id="batch-results-table">
+                                <thead>
+                                    <tr style="background-color: rgba(10, 15, 30, 0.4); font-weight: 600; border-bottom: 1px solid var(--card-border);">
+                                        <td style="padding: 10px; font-size: 12px; text-transform: uppercase;">ID de Muestra</td>
+                                        <td style="padding: 10px; font-size: 12px; text-transform: uppercase;">Longitud (pb)</td>
+                                        <td style="padding: 10px; font-size: 12px; text-transform: uppercase;">GC (%)</td>
+                                        <td style="padding: 10px; font-size: 12px; text-transform: uppercase;">Resultado</td>
+                                        <td style="padding: 10px; font-size: 12px; text-transform: uppercase;">Confianza</td>
+                                        <td style="padding: 10px; font-size: 12px; text-transform: uppercase; text-align: center;">Acción</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="models-results-comparison" id="models-comparison-view">
+                        <h3>Resultados Comparativos de Clasificadores</h3>
+                        <div class="model-cards-comparison">
+                            <div class="model-res-card primary-model">
+                                <div class="model-header">
+                                    <span class="model-name">Random Forest</span>
+                                    <span class="pill primary-pill">Principal</span>
+                                </div>
+                                <div class="model-res-val">
+                                    <span class="lbl">Predicción:</span>
+                                    <strong id="res-val-rf">Resistente</strong>
+                                </div>
+                                <div class="model-res-prob">
+                                    <span class="lbl">Confianza:</span>
+                                    <span id="res-prob-rf">98%</span>
+                                </div>
+                            </div>
+                            <div class="model-res-card">
+                                <div class="model-header">
+                                    <span class="model-name">Regresión Logística</span>
+                                    <span class="pill secondary-pill">Secundario</span>
+                                </div>
+                                <div class="model-res-val">
+                                    <span class="lbl">Predicción:</span>
+                                    <strong id="res-val-lr">Resistente</strong>
+                                </div>
+                                <div class="model-res-prob">
+                                    <span class="lbl">Confianza:</span>
+                                    <span id="res-prob-lr">84%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="export-bar" id="export-bar-view">
+                        <h4>Exportar Resultados Diagnósticos:</h4>
+                        <div class="export-buttons">
+                            <button class="btn-export pdf-btn" id="export-pdf"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                            <button class="btn-export excel-btn" id="export-excel"><i class="fa-solid fa-file-excel"></i> Excel (CSV)</button>
+                            <button class="btn-export csv-btn" id="export-csv"><i class="fa-solid fa-file-csv"></i> CSV</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Comparar Modelos Section -->
+            <section id="modelos-section" class="content-section">
+                <div class="selection-card">
+                    <div class="shield-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="selection-text">
+                        <h3>Modelo Seleccionado: Random Forest (Bosque Aleatorio)</h3>
+                        <p id="justification-text">Cargando justificación del modelo...</p>
+                    </div>
+                </div>
+
+                <div class="charts-grid-two">
+                    <div class="chart-card">
+                        <h3>Métricas de Evaluación Comparadas (Partición de Test)</h3>
+                        <div class="chart-container">
+                            <canvas id="metricsComparisonChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Matrices de Confusión de Clasificación</h3>
+                        <div class="confusion-matrices-container">
+                            <div class="matrix-box">
+                                <h4>Random Forest</h4>
+                                <div class="matrix-grid">
+                                    <div class="matrix-cell label-cell"></div>
+                                    <div class="matrix-cell label-cell">Pred S</div>
+                                    <div class="matrix-cell label-cell">Pred R</div>
+                                    
+                                    <div class="matrix-cell label-cell">Real S</div>
+                                    <div class="matrix-cell value-cell" id="rf-tn">0</div>
+                                    <div class="matrix-cell value-cell fn-cell" id="rf-fp">0</div>
+                                    
+                                    <div class="matrix-cell label-cell">Real R</div>
+                                    <div class="matrix-cell value-cell fn-cell" id="rf-fn">0</div>
+                                    <div class="matrix-cell value-cell" id="rf-tp">0</div>
+                                </div>
+                            </div>
+                            <div class="matrix-box">
+                                <h4>Regresión Logística</h4>
+                                <div class="matrix-grid">
+                                    <div class="matrix-cell label-cell"></div>
+                                    <div class="matrix-cell label-cell">Pred S</div>
+                                    <div class="matrix-cell label-cell">Pred R</div>
+                                    
+                                    <div class="matrix-cell label-cell">Real S</div>
+                                    <div class="matrix-cell value-cell" id="lr-tn">0</div>
+                                    <div class="matrix-cell value-cell fn-cell" id="lr-fp">0</div>
+                                    
+                                    <div class="matrix-cell label-cell">Real R</div>
+                                    <div class="matrix-cell value-cell fn-cell" id="lr-fn">0</div>
+                                    <div class="matrix-cell value-cell" id="lr-tp">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Historial Section -->
+            <section id="historial-section" class="content-section">
+                <div class="dashboard-card table-card">
+                    <div class="table-header-controls">
+                        <h3>Registro Histórico de Predicciones</h3>
+                        <div class="search-box">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="history-search" placeholder="Buscar ID de muestra o resultado...">
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="clinical-table history-table" id="history-table-el">
+                            <thead>
+                                <tr>
+                                    <th>Fecha y Hora</th>
+                                    <th>ID de Muestra</th>
+                                    <th>Longitud (pb)</th>
+                                    <th>GC (%)</th>
+                                    <th>Predicción Final</th>
+                                    <th>Confianza (%)</th>
+                                    <th>Modelo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="8" class="text-center">Cargando registros históricos...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+</body>
+</html>
