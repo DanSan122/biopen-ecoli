@@ -5,8 +5,8 @@ from flask import Flask, request, jsonify, send_file
 import io
 
 # Importar lógica local
-from features import parsear_fasta, parsear_csv, limpiar_y_validar_secuencia, extraer_todas_las_caracteristicas
-from model_manager import ModelManager
+from .features import parsear_fasta, parsear_csv, limpiar_y_validar_secuencia, extraer_todas_las_caracteristicas
+from .model_manager import ModelManager
 
 # Definir rutas base - Compatible con local y Render
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
