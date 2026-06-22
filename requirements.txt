@@ -3,6 +3,6 @@ biopython==1.84
 scikit-learn==1.5.2
 pandas==2.2.1
 numpy==2.1.0
-reportlab==4.1.1
+reportlab==4.0.9
 python-dotenv==1.0.1
 gunicorn==23.0.0
