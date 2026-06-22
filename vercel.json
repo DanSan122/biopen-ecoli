@@ -1,7 +1,6 @@
 {
   "buildCommand": "pip install -r requirements.txt",
   "framework": "flask",
-  "envPrefix": "FLASK_",
   "functions": {
     "backend/app.py": {
       "memory": 1024,
